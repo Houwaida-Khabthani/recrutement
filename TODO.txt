@@ -421,3 +421,15 @@
 │                                                                                                   │
 │  Tip: Resume a previous session using gemini --resume or /resume                                  │
 ╰─────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+
+gbbrgz
