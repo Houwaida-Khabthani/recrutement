@@ -8,59 +8,41 @@ function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<any>({});
-  const [logo, setLogo] = useState<File | null>(null);
-
   const [registerUser, { isLoading }] = useRegisterMutation();
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-    const name = e.target.name;
-    const value = e.target.value;
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) {
+    const { name, value } = e.target;
 
-    setForm({
-      ...form,
-      [name]: value
-    });
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files.length > 0) {
-      setLogo(e.target.files[0]);
-    }
+    setForm((prev: any) => ({
+      ...prev,
+      [name]: value,
+    }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!urlRole) {
-      alert("role missing");
-      return;
-    }
+    if (!urlRole) return alert("role missing");
 
     if (form.password !== form.confirmPassword) {
-      alert("Les mots de passe ne correspondent pas");
-      return;
-    }
-
-    if (urlRole === "ENTREPRISE" && !logo) {
-      alert("Logo obligatoire pour entreprise");
-      return;
+      return alert("Les mots de passe ne correspondent pas");
     }
 
     try {
-      const data = new FormData();
+      const payload: any = {
+        ...form,
+        role: urlRole,
+        mot_de_passe: form.password, // ✅ FIX
+      };
 
-      for (const key in form) {
-        data.append(key, form[key]);
-      }
+      delete payload.password;
+      delete payload.confirmPassword;
 
-      data.append("role", urlRole);
+      await registerUser(payload).unwrap();
 
-      if (logo) {
-        data.append("logo", logo);
-      }
-
-      await registerUser(data).unwrap();
-
+      alert("Inscription réussie ✅");
       navigate("/login/" + urlRole);
 
     } catch (err: any) {
@@ -78,7 +60,6 @@ function Register() {
       </h2>
 
       <form onSubmit={handleSubmit}>
-
         {urlRole === "CANDIDAT" && (
           <>
             <div className="form-group">
@@ -92,8 +73,9 @@ function Register() {
             <div className="form-group">
               <select name="civilite" onChange={handleChange} required>
                 <option value="">Civilité</option>
+                <option value="Mr">Mr</option>
                 <option value="Mme">Mme</option>
-                <option value="M">M</option>
+                <option value="Mlle">Mlle</option>
               </select>
             </div>
 
@@ -132,45 +114,24 @@ function Register() {
             <div className="form-group">
               <input name="adresse" placeholder="Adresse" onChange={handleChange} required />
             </div>
-
-            <div className="form-group">
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-            </div>
           </>
         )}
 
         <div className="form-group">
-          <input
-            type="password"
-            name="password"
-            placeholder="Mot de passe"
-            onChange={handleChange}
-            required
-          />
+          <input type="password" name="password" placeholder="Mot de passe" onChange={handleChange} required />
         </div>
 
         <div className="form-group">
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirmer mot de passe"
-            onChange={handleChange}
-            required
-          />
+          <input type="password" name="confirmPassword" placeholder="Confirmer mot de passe" onChange={handleChange} required />
         </div>
 
         <button type="submit" className="btn-primary" disabled={isLoading}>
           {isLoading ? "Inscription..." : "S'inscrire"}
         </button>
 
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={() => navigate("/")}
-        >
+        <button type="button" className="btn-secondary" onClick={() => navigate("/")}>
           Annuler
         </button>
-
       </form>
     </div>
   );

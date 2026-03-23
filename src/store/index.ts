@@ -13,14 +13,13 @@ export const store = configureStore({
   reducer: {
     [baseApi.reducerPath]: baseApi.reducer,
     auth: authReducer,
-      jobs: jobReducer,
-      candidate: candidateReducer,
-      company: companyReducer,
-      applications: applicationReducer,
-      visa: visaReducer,
-      notifications: notificationReducer,
-      ui: uiReducer,
-
+    jobs: jobReducer,
+    candidate: candidateReducer,
+    company: companyReducer,
+    applications: applicationReducer,
+    visa: visaReducer,
+    notifications: notificationReducer,
+    ui: uiReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

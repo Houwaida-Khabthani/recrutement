@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
             <NavLink to="/candidate/mock-interviews">
               Entretiens simulés
             </NavLink>
-            <NavLink to="/candidate/analytics">Analytique</NavLink>
+            
             <NavLink to="/candidate/settings">Paramètres</NavLink>
           </>
         )}

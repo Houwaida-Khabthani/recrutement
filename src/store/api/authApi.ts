@@ -2,7 +2,9 @@ import { baseApi } from './baseApi';
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation({
+
+    // ================= LOGIN =================
+    login: builder.mutation<any, { email: string; password: string }>({
       query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
@@ -10,26 +12,33 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    register: builder.mutation({
+    // ================= REGISTER =================
+    register: builder.mutation<any, any>({
       query: (data) => ({
         url: '/auth/register',
         method: 'POST',
-        body: data,
+        body: data, // ✅ JSON (not FormData)
       }),
     }),
 
-    forgotPassword: builder.mutation({
-      query: (email: string) => ({
+    // ================= FORGOT PASSWORD =================
+    forgotPassword: builder.mutation<any, string>({
+      query: (email) => ({
         url: '/auth/forgot-password',
         method: 'POST',
         body: { email },
       }),
     }),
 
-    getCurrentUser: builder.query({
-      query: () => '/auth/me',
+    // ================= CURRENT USER =================
+    getCurrentUser: builder.query<any, void>({
+      query: () => ({
+        url: '/auth/me',
+        method: 'GET',
+      }),
       providesTags: ['Profile'],
     }),
+
   }),
 });
 

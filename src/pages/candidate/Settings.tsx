@@ -1,96 +1,161 @@
+import {
+  useGetMeQuery,
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
+} from "../../store/api/settingsApi";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../components/common/Sidebar";
-import Navbar from "../../components/common/Navbar";
-import JobCard from "../../components/cards/JobCard";
-import { useGetRecommendedJobsQuery } from "../../store/api/jobApi";
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks/useAppDispatch";
+import { setTheme } from "../../store/slices/uiSlice";
 
-function Dashboard() {
+const Settings = () => {
+  const { data, isLoading, isError } = useGetMeQuery(undefined);
+  const [changePassword, { isLoading: isUpdating }] =
+    useChangePasswordMutation();
+  const [deleteAccount, { isLoading: isDeleting }] =
+    useDeleteAccountMutation();
+
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const theme = useAppSelector((state) => state.ui.theme);
 
-  const { 
-    data: jobs, 
-    isLoading, 
-    isError 
-  } = useGetRecommendedJobsQuery(undefined);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
+  // 🔐 CHANGE PASSWORD + REDIRECT
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword) {
+      alert("Veuillez remplir tous les champs");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      alert("Le mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
+
+    try {
+      await changePassword({ currentPassword, newPassword }).unwrap();
+
+      // ✅ logout user
+      localStorage.removeItem("token");
+
+      alert("Mot de passe modifié. Veuillez vous reconnecter 🔐");
+
+      // ✅ redirect to login
+      navigate("/login/candidat");
+
+    } catch (err: any) {
+      alert(err?.data?.message || "Erreur lors de la mise à jour");
+    }
+  };
+
+  // ❌ DELETE ACCOUNT
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      "Êtes-vous sûr de vouloir supprimer votre compte ?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await deleteAccount().unwrap();
+
+      localStorage.removeItem("token");
+
+      alert("Compte supprimé ❌");
+
+      navigate("/login/candidat");
+    } catch {
+      alert("Erreur lors de la suppression");
+    }
+  };
+
+  // ⏳ STATES
+  if (isLoading) return <p className="loading-text">Chargement...</p>;
+  if (isError) return <p>Erreur lors du chargement</p>;
 
   return (
-    <div className="layout">
-      <Sidebar />
+    <div className="settings-page">
+      <div className="settings-container">
 
-      <div className="main">
-        <Navbar />
+        <h1 style={{ textAlign: "center" }}>⚙️ Paramètres</h1>
 
-        <div className="content">
-          {/* HERO */}
-          <div className="hero">
-            <h3>Bonjour</h3>
-            <p>
-              Vous avez 0 nouvelles notifications et 0 candidatures cette semaine
-            </p>
+        {/* EMAIL */}
+        <div className="settings-card">
+          <h3>Adresse e-mail</h3>
+          <p>{data?.email}</p>
+        </div>
 
-            <button
-              className="btn-primary"
-              onClick={() => navigate("/candidate/jobs")}
-            >
-              Parcourir les emplois
-            </button>
+        {/* CHANGE PASSWORD */}
+        <div className="settings-card">
+          <h3>🔐 Modifier le mot de passe</h3>
 
-            <button
-              className="btn-secondary"
-              onClick={() => navigate("/candidate/interview")}
-            >
-              Passer un entretien blanc
-            </button>
+          <div className="form-group">
+            <label>Mot de passe actuel</label>
+            <input
+              type="password"
+              placeholder="Entrez votre mot de passe actuel"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
           </div>
 
-          {/* STATS */}
-          <div className="cards">
-            <div className="card">
-              <h4>Profil complété</h4>
-              <p>0%</p>
-            </div>
-
-            <div className="card">
-              <h4>Candidatures cette semaine</h4>
-              <p>0</p>
-            </div>
-
-            <div className="card">
-              <h4>Série d'apprentissage</h4>
-              <p>0 jours</p>
-            </div>
+          <div className="form-group">
+            <label>Nouveau mot de passe</label>
+            <input
+              type="password"
+              placeholder="Entrez un nouveau mot de passe"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
           </div>
 
-          {/* JOBS SECTION */}
-          <div className="jobs-section">
-            <div className="jobs-header">
-              <h3>Emplois recommandés</h3>
-              <button
-                className="btn-link"
-                onClick={() => navigate("/candidate/jobs")}
-              >
-                Voir tout
-              </button>
-            </div>
+          <button
+            className="btn-primary"
+            onClick={handleChangePassword}
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Mise à jour..." : "Mettre à jour"}
+          </button>
+        </div>
 
-            {isLoading && <p>Chargement des emplois...</p>}
+        {/* THEME */}
+        <div className="settings-card">
+          <h3>🎨 Thème</h3>
 
-            {isError && <p>Erreur lors du chargement des emplois</p>}
-
-            {!isLoading && (!jobs || jobs.length === 0) && (
-              <p>Aucun emploi disponible</p>
-            )}
-
-            <div className="jobs-grid">
-              {jobs?.map((job: any) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-            </div>
+          <div className="form-group">
+            <label>Choisir un thème</label>
+            <select
+              value={theme}
+              onChange={(e) =>
+                dispatch(setTheme(e.target.value as "light" | "dark"))
+              }
+            >
+              <option value="light">Clair ☀️</option>
+              <option value="dark">Sombre 🌙</option>
+            </select>
           </div>
         </div>
+
+        {/* DELETE ACCOUNT */}
+        <div className="settings-card danger">
+          <h3>⚠️ Zone dangereuse</h3>
+          <p style={{ color: "#ef4444", marginBottom: "10px" }}>
+            Cette action est irréversible. Veuillez confirmer.
+          </p>
+
+          <button
+            className="btn-danger"
+            onClick={handleDeleteAccount}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Suppression..." : "Supprimer le compte"}
+          </button>
+        </div>
+
       </div>
     </div>
   );
-}
+};
 
-export default Dashboard;
+export default Settings;
