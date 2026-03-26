@@ -1,80 +1,55 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// ✅ ALL JOBS
+export const fetchJobs = createAsyncThunk("jobs/fetchJobs", async () => {
+  const res = await axios.get("http://localhost:5000/api/jobs");
+  return res.data;
+});
 
-export const fetchJobs = createAsyncThunk(
-  'jobs/fetchAll',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${API_URL}/jobs`);
-      if (!response.ok) throw new Error('Failed to fetch jobs');
-      return await response.json();
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
+// ✅ RECOMMENDED JOBS (NEW)
 export const fetchRecommendedJobs = createAsyncThunk(
-  'jobs/fetchRecommended',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${API_URL}/jobs/recommended`);
-      if (!response.ok) throw new Error('Failed to fetch recommended jobs');
-      return await response.json();
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const createJob = createAsyncThunk(
-  'jobs/create',
-  async (jobData: any, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${API_URL}/jobs`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(jobData)
-      });
-      if (!response.ok) throw new Error('Failed to create job');
-      return await response.json();
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
+  "jobs/fetchRecommendedJobs",
+  async () => {
+    const res = await axios.get(
+      "http://localhost:5000/api/jobs/recommended"
+    );
+    return res.data;
   }
 );
 
 const jobSlice = createSlice({
-  name: 'jobs',
+  name: "jobs",
   initialState: {
-    items: [],
-    recommended: [],
+    jobs: [],
+    recommendedJobs: [],
     loading: false,
-    error: null as string | null,
+    error: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // ALL JOBS
       .addCase(fetchJobs.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchJobs.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.jobs = action.payload;
       })
-      .addCase(fetchJobs.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
+
+      // RECOMMENDED JOBS
+      .addCase(fetchRecommendedJobs.pending, (state) => {
+        state.loading = true;
       })
       .addCase(fetchRecommendedJobs.fulfilled, (state, action) => {
-        state.recommended = action.payload;
+        state.loading = false;
+        state.recommendedJobs = action.payload;
       })
-      .addCase(createJob.fulfilled, (state, action) => {
-        state.items = [action.payload, ...(state.items as any[])];
+
+      .addCase(fetchJobs.rejected, (state) => {
+        state.loading = false;
+        state.error = true;
       });
   },
 });

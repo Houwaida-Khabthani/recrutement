@@ -1,31 +1,56 @@
 import { baseApi } from "./baseApi";
 
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+interface User {
+  id: number;
+  email: string;
+  nom: string;
+  role: string;
+}
+
 export const settingsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-
-    // Get current user (email)
-    getMe: builder.query({
-      query: () => "/auth/me",
+    /**
+     * GET CURRENT USER
+     */
+    getMe: builder.query<User, void>({
+      query: () => ({
+        url: "/auth/me",
+        method: "GET",
+      }),
+      providesTags: ["Profile"],
     }),
 
-    // Change password
-    changePassword: builder.mutation({
-      query: (data: { currentPassword: string; newPassword: string }) => ({
+    /**
+     * CHANGE PASSWORD
+     */
+    changePassword: builder.mutation<
+      { message: string },
+      ChangePasswordPayload
+    >({
+      query: (data) => ({
         url: "/auth/change-password",
         method: "PUT",
         body: data,
       }),
     }),
 
-    // Delete account
-    deleteAccount: builder.mutation({
+    /**
+     * DELETE ACCOUNT
+     */
+    deleteAccount: builder.mutation<{ message: string }, void>({
       query: () => ({
         url: "/auth/delete-account",
         method: "DELETE",
       }),
     }),
-
   }),
+
+  overrideExisting: false,
 });
 
 export const {

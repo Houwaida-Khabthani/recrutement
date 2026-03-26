@@ -11,7 +11,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   
-  const { recommended: jobs, loading: isLoading, error: isError } = useAppSelector((state) => state.jobs);
+  const { recommendedJobs: jobs, loading: isLoading, error: isError } = useAppSelector((state) => state.jobs);
 
   useEffect(() => {
     dispatch(fetchRecommendedJobs());
@@ -28,10 +28,7 @@ function Dashboard() {
           {/* HERO */}
           <div className="hero">
             <h3>Bonjour</h3>
-
-            <p>
-              Vous avez 0 nouvelles notifications et 0 candidatures cette semaine
-            </p>
+            <br />
 
             <button
               className="btn-primary"

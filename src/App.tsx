@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import AppRoutes from "./routes/AppRoutes";
 import { useAppDispatch } from "./hooks/useAppDispatch";
-import { useAppSelector } from "./hooks/useAppDispatch";
+import { useAppSelector } from "./hooks/useAppSelector";
 import { fetchUser } from "./store/slices/authSlice";
 
 function App() {

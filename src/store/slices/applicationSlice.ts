@@ -38,13 +38,21 @@ export const applyToJob = createAsyncThunk(
   }
 );
 
+interface ApplicationState {
+  myApplications: any[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: ApplicationState = {
+  myApplications: [],
+  loading: false,
+  error: null,
+};
+
 const applicationSlice = createSlice({
   name: 'applications',
-  initialState: {
-    myApplications: [],
-    loading: false,
-    error: null as string | null,
-  },
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -60,7 +68,7 @@ const applicationSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(applyToJob.fulfilled, (state, action) => {
-        state.myApplications = [action.payload, ...(state.myApplications as any[])];
+        state.myApplications = [action.payload, ...state.myApplications];
       });
   },
 });

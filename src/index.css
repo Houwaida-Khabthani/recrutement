@@ -1089,3 +1089,96 @@ button {
   color: var(--text-light);
   margin-bottom: 15px;
 }
+/* ========================= */
+/* ===== JOBS PAGE ===== */
+/* ========================= */
+
+/* Header */
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 5px;
+}
+
+.page-header p {
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+/* Jobs section spacing */
+.jobs-section {
+  margin-top: 30px;
+}
+
+/* Jobs header (if you reuse later) */
+.jobs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.jobs-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Link button */
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+/* Jobs grid */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Job card hover effect */
+.jobs-grid > * {
+  transition: all 0.25s ease;
+}
+
+.jobs-grid > *:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(124, 58, 237, 0.15);
+}
+
+/* Loading / empty / error text */
+.content p {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-top: 15px;
+}
+
+/* ========================= */
+/* ===== RESPONSIVE ===== */
+/* ========================= */
+
+@media (max-width: 900px) {
+  .jobs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.layout {
+  display: flex;
+}
+
+.main {
+  flex: 1;
+}

@@ -1,169 +1,124 @@
-import { ChangeEvent, useState } from "react";
-import {
-  useGetCandidateProfileQuery,
-  useUpdateCandidateProfileMutation,
-  useParseCVMutation
-} from "../../store/api/candidateApi";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function ResumeTools() {
-  const { isLoading } = useGetCandidateProfileQuery();
-  const [updateProfile] = useUpdateCandidateProfileMutation();
-  const [parseCV] = useParseCVMutation();
+/* ================= TYPES ================= */
+type ResumeTool = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  route: string;
+  badge?: string;
+};
 
-  const [score, setScore] = useState<number>(0);
-  const [country, setCountry] = useState("France");
-  const [loading, setLoading] = useState(false);
+/* ================= DATA ================= */
+const tools: ResumeTool[] = [
+  {
+    id: "builder",
+    title: "Créer un CV",
+    description:
+      "Créez un CV professionnel en quelques minutes avec nos templates.",
+    icon: "📝",
+    route: "/cv-builder",
+    badge: "Populaire",
+  },
+  {
+    id: "analyzer",
+    title: "Analyser mon CV",
+    description:
+      "Recevez des suggestions intelligentes pour améliorer votre CV.",
+    icon: "🤖",
+    route: "/cv-analyzer",
+  },
+  {
+    id: "match",
+    title: "Optimiser pour une offre",
+    description:
+      "Comparez votre CV avec une offre et obtenez un score de compatibilité.",
+    icon: "🎯",
+    route: "/cv-match",
+    badge: "AI",
+  },
+  {
+    id: "cover",
+    title: "Lettre de motivation",
+    description:
+      "Générez une lettre de motivation personnalisée rapidement.",
+    icon: "📄",
+    route: "/cover-letter",
+  },
+  {
+    id: "skills",
+    title: "Suggestions de compétences",
+    description:
+      "Découvrez les compétences les plus recherchées pour votre profil.",
+    icon: "🧠",
+    route: "/skills-suggestions",
+  },
+  {
+    id: "examples",
+    title: "Exemples de CV",
+    description:
+      "Inspirez-vous de modèles de CV adaptés à votre domaine.",
+    icon: "📚",
+    route: "/cv-examples",
+  },
+];
 
-  // 🤖 PARSE CV + UPDATE PROFILE
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-
-    const file = e.target.files[0];
-    const form = new FormData();
-    form.append("file", file);
-
-    try {
-      setLoading(true);
-
-      const result = await parseCV(form).unwrap();
-
-      // 🔥 update profile automatically
-      await updateProfile(result).unwrap();
-
-      setScore(85); // fake score for now
-
-      alert("CV analysé et profil mis à jour ✅");
-    } catch (err) {
-      console.error(err);
-      alert("Erreur parsing CV ❌");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (isLoading) return <p className="p-6">Chargement...</p>;
+/* ================= CARD ================= */
+const ToolCard: React.FC<{ tool: ResumeTool }> = ({ tool }) => {
+  const navigate = useNavigate();
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div
+      onClick={() => navigate(tool.route)}
+      className="cursor-pointer bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 flex flex-col justify-between border hover:border-blue-500"
+    >
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-3xl">{tool.icon}</span>
 
-      <h1 className="text-2xl font-bold">Outils CV</h1>
-      <p className="text-gray-500">
-        Optimise ton CV avec l'IA et améliore tes chances 🚀
-      </p>
-
-      {/* 📄 Upload CV */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="font-semibold mb-2">Importer votre CV</h2>
-
-        <input type="file" onChange={handleFileChange} />
-
-        {loading && (
-          <p className="text-blue-500 mt-2">Analyse en cours...</p>
-        )}
-      </div>
-
-      {/* 🤖 Score CV */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="font-semibold">Score CV : {score}%</h2>
-
-        <div className="w-full bg-gray-200 h-3 rounded mt-2">
-          <div
-            className="bg-green-500 h-3 rounded"
-            style={{ width: `${score}%` }}
-          />
+          {tool.badge && (
+            <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+              {tool.badge}
+            </span>
+          )}
         </div>
 
-        {score > 0 && (
-          <ul className="text-sm text-gray-600 mt-3">
-            <li>✔ Profil enrichi automatiquement</li>
-            <li>✔ CV optimisé pour le marché international</li>
-          </ul>
-        )}
+        <h3 className="text-lg font-semibold mb-2">{tool.title}</h3>
+        <p className="text-sm text-gray-600">{tool.description}</p>
       </div>
 
-      {/* 🌍 Adaptation */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="font-semibold mb-2">Adapter mon CV</h2>
-
-        <select
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option>France</option>
-          <option>Canada</option>
-          <option>Allemagne</option>
-        </select>
-
-        <button className="ml-3 bg-black text-white px-3 py-2 rounded-xl">
-          Adapter
-        </button>
-      </div>
-
-      {/* 📥 Export PDF */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <button className="bg-green-600 text-white px-4 py-2 rounded-xl">
-          Télécharger CV (PDF)
-        </button>
-      </div>
-
-      {/* 🎓 Videos Section */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="font-semibold mb-4">Conseils & Vidéos CV</h2>
-
-        <div className="grid md:grid-cols-2 gap-4">
-
-          <div>
-            <iframe
-              className="w-full h-48 rounded-xl"
-              src="https://www.youtube.com/embed/y8YH0Qbu5h4"
-              title="How to write a CV"
-              allowFullScreen
-            ></iframe>
-            <p className="text-sm mt-2">
-              Comment créer un CV professionnel
-            </p>
-          </div>
-
-          <div>
-            <iframe
-              className="w-full h-48 rounded-xl"
-              src="https://www.youtube.com/embed/J-4Fv8nq1iA"
-              title="CV mistakes"
-              allowFullScreen
-            ></iframe>
-            <p className="text-sm mt-2">
-              Les erreurs à éviter dans un CV
-            </p>
-          </div>
-
-          <div>
-            <iframe
-              className="w-full h-48 rounded-xl"
-              src="https://www.youtube.com/embed/7y6h8Z8F7e0"
-              title="CV Europe"
-              allowFullScreen
-            ></iframe>
-            <p className="text-sm mt-2">
-              CV pour travailler en Europe
-            </p>
-          </div>
-
-          <div>
-            <iframe
-              className="w-full h-48 rounded-xl"
-              src="https://www.youtube.com/embed/K6Y6X2xkZ9E"
-              title="Recruiter tips"
-              allowFullScreen
-            ></iframe>
-            <p className="text-sm mt-2">
-              Conseils de recruteurs
-            </p>
-          </div>
-
-        </div>
-      </div>
-
+      <button className="mt-6 text-blue-600 font-medium hover:underline">
+        Utiliser →
+      </button>
     </div>
   );
-}
+};
+
+/* ================= PAGE ================= */
+const ResumeTools: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-gray-50 px-6 py-10">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-3xl font-bold mb-2">Outils CV</h1>
+          <p className="text-gray-600">
+            Améliorez votre CV et augmentez vos chances de décrocher un emploi.
+          </p>
+        </div>
+
+        {/* Tools Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {tools.map((tool) => (
+            <ToolCard key={tool.id} tool={tool} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ResumeTools;

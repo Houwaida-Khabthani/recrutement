@@ -4,7 +4,7 @@ import Navbar from "../../components/common/Navbar";
 import { useGetVisaStatusQuery, useUploadVisaDocsMutation } from "../../store/api/visaApi";
 
 function Visa() {
-  const { data: visa, isLoading, isError } = useGetVisaStatusQuery(undefined);
+  const { data: visa, isLoading } = useGetVisaStatusQuery(undefined);
   const [uploadDocs, { isLoading: isUploading }] = useUploadVisaDocsMutation();
   const [file, setFile] = useState<File | null>(null);
 

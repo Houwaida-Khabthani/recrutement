@@ -1,4 +1,4 @@
-import { RootState } from '../index';
+import type { RootState } from '../index';
 
 export const selectAllNotifications = (state: RootState) => state.notifications.items;
 export const selectUnreadNotifications = (state: RootState) => state.notifications.unread;

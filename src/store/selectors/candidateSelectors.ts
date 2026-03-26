@@ -1,4 +1,4 @@
-import { RootState } from '../index';
+import type { RootState } from '../index';
 
 export const selectCandidateProfile = (state: RootState) => state.candidate.profile;
 export const selectCandidateStats = (state: RootState) => state.candidate.stats;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useUpdateMeMutation, useDeleteMeMutation } from "../../store/api/authApi";
+import { useUpdateCandidateProfileMutation } from "../../store/api/candidateApi";
+import { useDeleteAccountMutation } from "../../store/api/settingsApi";
 import { logout } from "../../store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -9,8 +10,8 @@ export default function ProfileForm({ profile, setProfile }: any) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(profile);
   
-  const [updateMe, { isLoading: isUpdating }] = useUpdateMeMutation();
-  const [deleteMe, { isLoading: isDeleting }] = useDeleteMeMutation();
+  const [updateMe, { isLoading: isUpdating }] = useUpdateCandidateProfileMutation();
+  const [deleteMe, { isLoading: isDeleting }] = useDeleteAccountMutation();
 
   useEffect(() => {
     setFormData(profile);
@@ -36,7 +37,7 @@ export default function ProfileForm({ profile, setProfile }: any) {
   const handleDelete = async () => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer votre compte ?")) {
       try {
-        await deleteMe(null).unwrap();
+        await deleteMe().unwrap();
         alert("Compte supprimé ❗");
         dispatch(logout());
         navigate("/login/candidate"); // Or default login
