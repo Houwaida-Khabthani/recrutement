@@ -1,39 +1,33 @@
 import React, { useState } from 'react';
 import Sidebar from "../../components/common/Sidebar";
 import Navbar from "../../components/common/Navbar";
-import { useGetAllUsersQuery, useDeleteUserMutation, useCreateUserMutation, useUpdateUserMutation } from "../../store/api/adminApi";
-import { UserRole } from "../../types/roles";
+import { useGetAllCompaniesQuery, useDeleteCompanyMutation, useCreateCompanyMutation, useUpdateCompanyMutation } from "../../store/api/adminApi";
 
-function AdminUsers() {
+function AdminCompanies() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editingCompany, setEditingCompany] = useState<any>(null);
   const [formData, setFormData] = useState({
     nom: '',
+    description: '',
     email: '',
-    mot_de_passe: '',
-    role: UserRole.CANDIDAT,
-    telephone: '',
-    pays: 'Tunisia',
-    adresse: '',
-    civilite: 'Mr'
+    secteur: '',
+    id_user: ''
   });
 
-  const { data: users, isLoading, isError, refetch } = useGetAllUsersQuery({
-    search: searchTerm,
-    role: roleFilter
+  const { data: companies, isLoading, isError, refetch } = useGetAllCompaniesQuery({
+    search: searchTerm
   });
-  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
-  const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
-  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const [deleteCompany, { isLoading: isDeleting }] = useDeleteCompanyMutation();
+  const [createCompany, { isLoading: isCreating }] = useCreateCompanyMutation();
+  const [updateCompany, { isLoading: isUpdating }] = useUpdateCompanyMutation();
 
   const handleDelete = async (id: number) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette entreprise ?")) {
       try {
-        await deleteUser(id).unwrap();
+        await deleteCompany(id).unwrap();
         refetch();
-        alert("Utilisateur supprimé avec succès");
+        alert("Entreprise supprimée avec succès");
       } catch (err: any) {
         alert(err.data?.message || "Erreur lors de la suppression");
       }
@@ -43,20 +37,17 @@ function AdminUsers() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createUser(formData).unwrap();
+      await createCompany(formData).unwrap();
       setShowCreateForm(false);
       setFormData({
         nom: '',
+        description: '',
         email: '',
-        mot_de_passe: '',
-        role: UserRole.CANDIDAT,
-        telephone: '',
-        pays: 'Tunisia',
-        adresse: '',
-        civilite: 'Mr'
+        secteur: '',
+        id_user: ''
       });
       refetch();
-      alert("Utilisateur créé avec succès");
+      alert("Entreprise créée avec succès");
     } catch (err: any) {
       alert(err.data?.message || "Erreur lors de la création");
     }
@@ -64,53 +55,44 @@ function AdminUsers() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingUser) return;
+    if (!editingCompany) return;
     try {
-      await updateUser({ id: editingUser.id_user, ...formData }).unwrap();
-      setEditingUser(null);
+      await updateCompany({ id: editingCompany.id_company, ...formData }).unwrap();
+      setEditingCompany(null);
       setFormData({
         nom: '',
+        description: '',
         email: '',
-        mot_de_passe: '',
-        role: UserRole.CANDIDAT,
-        telephone: '',
-        pays: 'Tunisia',
-        adresse: '',
-        civilite: 'Mr'
+        secteur: '',
+        id_user: ''
       });
       refetch();
-      alert("Utilisateur mis à jour avec succès");
+      alert("Entreprise mise à jour avec succès");
     } catch (err: any) {
       alert(err.data?.message || "Erreur lors de la mise à jour");
     }
   };
 
-  const startEdit = (user: any) => {
-    setEditingUser(user);
+  const startEdit = (company: any) => {
+    setEditingCompany(company);
     setFormData({
-      nom: user.nom || '',
-      email: user.email || '',
-      mot_de_passe: '', // Don't prefill password
-      role: user.role || UserRole.CANDIDAT,
-      telephone: user.telephone || '',
-      pays: user.pays || 'Tunisia',
-      adresse: user.adresse || '',
-      civilite: user.civilite || 'Mr'
+      nom: company.nom || '',
+      description: company.description || '',
+      email: company.email || '',
+      secteur: company.secteur || '',
+      id_user: company.id_user || ''
     });
   };
 
   const cancelEdit = () => {
-    setEditingUser(null);
+    setEditingCompany(null);
     setShowCreateForm(false);
     setFormData({
       nom: '',
+      description: '',
       email: '',
-      mot_de_passe: '',
-      role: UserRole.CANDIDAT,
-      telephone: '',
-      pays: 'Tunisia',
-      adresse: '',
-      civilite: 'Mr'
+      secteur: '',
+      id_user: ''
     });
   };
 
@@ -121,29 +103,19 @@ function AdminUsers() {
         <Navbar />
         <div className="content">
           <div className="page-header">
-            <h2>Gestion des Utilisateurs</h2>
-            <p>CRUD complet des utilisateurs avec recherche</p>
+            <h2>Gestion des Entreprises</h2>
+            <p>CRUD complet des entreprises avec recherche</p>
           </div>
 
           {/* Search and Filters */}
           <div style={{ marginTop: "20px", marginBottom: "20px", display: "flex", gap: "15px", alignItems: "center" }}>
             <input
               type="text"
-              placeholder="Rechercher par nom ou email..."
+              placeholder="Rechercher par nom d'entreprise ou utilisateur..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "4px", minWidth: "250px" }}
             />
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "4px" }}
-            >
-              <option value="">Tous les rôles</option>
-              <option value="CANDIDAT">Candidat</option>
-              <option value="ENTREPRISE">Entreprise</option>
-              <option value="ADMIN">Admin</option>
-            </select>
             <button
               onClick={() => setShowCreateForm(true)}
               style={{
@@ -155,12 +127,12 @@ function AdminUsers() {
                 cursor: "pointer"
               }}
             >
-              + Nouveau Utilisateur
+              + Nouvelle Entreprise
             </button>
           </div>
 
           {/* Create/Edit Form */}
-          {(showCreateForm || editingUser) && (
+          {(showCreateForm || editingCompany) && (
             <div style={{
               background: "white",
               padding: "20px",
@@ -168,11 +140,11 @@ function AdminUsers() {
               boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               marginBottom: "20px"
             }}>
-              <h3>{editingUser ? 'Modifier Utilisateur' : 'Créer Utilisateur'}</h3>
-              <form onSubmit={editingUser ? handleUpdate : handleCreate}>
+              <h3>{editingCompany ? 'Modifier Entreprise' : 'Créer Entreprise'}</h3>
+              <form onSubmit={editingCompany ? handleUpdate : handleCreate}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginTop: "15px" }}>
                   <div>
-                    <label>Nom:</label>
+                    <label>Nom de l'entreprise:</label>
                     <input
                       type="text"
                       value={formData.nom}
@@ -191,50 +163,34 @@ function AdminUsers() {
                       style={{ width: "100%", padding: "8px", border: "1px solid #ddd", borderRadius: "4px" }}
                     />
                   </div>
-                  {!editingUser && (
-                    <div>
-                      <label>Mot de passe:</label>
-                      <input
-                        type="password"
-                        value={formData.mot_de_passe}
-                        onChange={(e) => setFormData({...formData, mot_de_passe: e.target.value})}
-                        required
-                        style={{ width: "100%", padding: "8px", border: "1px solid #ddd", borderRadius: "4px" }}
-                      />
-                    </div>
-                  )}
                   <div>
-                    <label>Rôle:</label>
-                    <select
-                      value={formData.role}
-                      onChange={(e) => setFormData({...formData, role: e.target.value})}
-                      style={{ width: "100%", padding: "8px", border: "1px solid #ddd", borderRadius: "4px" }}
-                    >
-                      <option value={UserRole.CANDIDAT}>Candidat</option>
-                      <option value={UserRole.ENTREPRISE}>Entreprise</option>
-                      <option value={UserRole.ADMIN}>Admin</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label>Téléphone:</label>
+                    <label>Secteur:</label>
                     <input
                       type="text"
-                      value={formData.telephone}
-                      onChange={(e) => setFormData({...formData, telephone: e.target.value})}
+                      value={formData.secteur}
+                      onChange={(e) => setFormData({...formData, secteur: e.target.value})}
+                      required
                       style={{ width: "100%", padding: "8px", border: "1px solid #ddd", borderRadius: "4px" }}
                     />
                   </div>
                   <div>
-                    <label>Civilité:</label>
-                    <select
-                      value={formData.civilite}
-                      onChange={(e) => setFormData({...formData, civilite: e.target.value})}
+                    <label>ID Utilisateur:</label>
+                    <input
+                      type="number"
+                      value={formData.id_user}
+                      onChange={(e) => setFormData({...formData, id_user: e.target.value})}
+                      required
                       style={{ width: "100%", padding: "8px", border: "1px solid #ddd", borderRadius: "4px" }}
-                    >
-                      <option value="Mr">Mr</option>
-                      <option value="Mme">Mme</option>
-                      <option value="Mlle">Mlle</option>
-                    </select>
+                    />
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label>Description:</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      rows={3}
+                      style={{ width: "100%", padding: "8px", border: "1px solid #ddd", borderRadius: "4px" }}
+                    />
                   </div>
                 </div>
                 <div style={{ marginTop: "20px" }}>
@@ -251,7 +207,7 @@ function AdminUsers() {
                       marginRight: "10px"
                     }}
                   >
-                    {editingUser ? 'Mettre à jour' : 'Créer'}
+                    {editingCompany ? 'Mettre à jour' : 'Créer'}
                   </button>
                   <button
                     type="button"
@@ -272,46 +228,34 @@ function AdminUsers() {
             </div>
           )}
 
-          {/* Users Table */}
-          <div className="users-table-container" style={{ marginTop: "20px", background: "white", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+          {/* Companies Table */}
+          <div className="companies-table-container" style={{ marginTop: "20px", background: "white", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
             {isLoading && <p>Chargement...</p>}
-            {isError && <p>Erreur lors du chargement des utilisateurs</p>}
+            {isError && <p>Erreur lors du chargement des entreprises</p>}
 
-            {!isLoading && users && (
+            {!isLoading && companies && (
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid #eee", textAlign: "left" }}>
                     <th style={{ padding: "10px" }}>ID</th>
                     <th style={{ padding: "10px" }}>Nom</th>
                     <th style={{ padding: "10px" }}>Email</th>
-                    <th style={{ padding: "10px" }}>Rôle</th>
-                    <th style={{ padding: "10px" }}>Téléphone</th>
+                    <th style={{ padding: "10px" }}>Secteur</th>
+                    <th style={{ padding: "10px" }}>Utilisateur</th>
                     <th style={{ padding: "10px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user: any) => (
-                    <tr key={user.id_user} style={{ borderBottom: "1px solid #eee" }}>
-                      <td style={{ padding: "10px" }}>{user.id_user}</td>
-                      <td style={{ padding: "10px" }}>{user.nom || user.nom_entreprise || "N/A"}</td>
-                      <td style={{ padding: "10px" }}>{user.email}</td>
-                      <td style={{ padding: "10px" }}>
-                        <span style={{
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          fontSize: "0.85rem",
-                          backgroundColor: user.role === UserRole.CANDIDAT ? "#e3f2fd" :
-                                          user.role === UserRole.ENTREPRISE ? "#fff3cd" : "#d1e7dd",
-                          color: user.role === UserRole.CANDIDAT ? "#0d47a1" :
-                                 user.role === UserRole.ENTREPRISE ? "#856404" : "#0f5132"
-                        }}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px" }}>{user.telephone || "N/A"}</td>
+                  {companies.map((company: any) => (
+                    <tr key={company.id_company} style={{ borderBottom: "1px solid #eee" }}>
+                      <td style={{ padding: "10px" }}>{company.id_company}</td>
+                      <td style={{ padding: "10px" }}>{company.nom}</td>
+                      <td style={{ padding: "10px" }}>{company.email}</td>
+                      <td style={{ padding: "10px" }}>{company.secteur}</td>
+                      <td style={{ padding: "10px" }}>{company.user_name} ({company.email})</td>
                       <td style={{ padding: "10px" }}>
                         <button
-                          onClick={() => startEdit(user)}
+                          onClick={() => startEdit(company)}
                           style={{
                             background: "#007bff",
                             color: "white",
@@ -325,7 +269,7 @@ function AdminUsers() {
                           Modifier
                         </button>
                         <button
-                          onClick={() => handleDelete(user.id_user)}
+                          onClick={() => handleDelete(company.id_company)}
                           disabled={isDeleting}
                           style={{
                             background: "none",
@@ -351,4 +295,4 @@ function AdminUsers() {
   );
 }
 
-export default AdminUsers;
+export default AdminCompanies;

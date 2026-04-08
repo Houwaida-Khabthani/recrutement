@@ -30,6 +30,25 @@ function Register() {
       return alert("Les mots de passe ne correspondent pas");
     }
 
+    // ✅ Validate required fields based on role
+    if (urlRole === "CANDIDAT") {
+      if (!form.nom?.trim()) {
+        return alert("Le nom est obligatoire");
+      }
+    } else if (urlRole === "ENTREPRISE") {
+      if (!form.nom_entreprise?.trim()) {
+        return alert("Le nom d'entreprise est obligatoire");
+      }
+    }
+
+    if (!form.email?.trim()) {
+      return alert("L'email est obligatoire");
+    }
+
+    if (!form.password?.trim()) {
+      return alert("Le mot de passe est obligatoire");
+    }
+
     try {
       const payload: any = {
         ...form,

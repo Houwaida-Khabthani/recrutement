@@ -22,7 +22,7 @@ export const fetchUser = createAsyncThunk(
   'auth/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/me`, {
+      const response = await fetch('http://localhost:5000/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -74,13 +74,17 @@ const authSlice = createSlice({
         state.isInitialized = true;
         localStorage.setItem('user', JSON.stringify(action.payload));
       })
-      .addCase(fetchUser.rejected, (state) => {
+      .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
-        state.user = null;
-        state.token = null;
         state.isInitialized = true;
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // Only logout if we had a token (actual auth failure)
+        // If no token, just stay logged out
+        if (state.token) {
+          state.user = null;
+          state.token = null;
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
       });
   },
 });
