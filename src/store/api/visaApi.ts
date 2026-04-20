@@ -12,11 +12,36 @@ export const visaApi = baseApi.injectEndpoints({
       providesTags: ['Visa'],
     }),
 
+    getVisaDocuments: builder.query({
+      query: (params) => ({
+        url: '/visas/documents',
+        params: params || {},
+      }),
+      providesTags: ['Visa'],
+    }),
+
     uploadVisaDocs: builder.mutation({
       query: (data) => ({
         url: '/visas/upload',
         method: 'POST',
         body: data,
+      }),
+      invalidatesTags: ['Visa'],
+    }),
+
+    deleteVisaDoc: builder.mutation({
+      query: (id) => ({
+        url: `/visas/documents/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Visa'],
+    }),
+
+    updateVisaStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/visas/${id}/status`,
+        method: 'PUT',
+        body: { status },
       }),
       invalidatesTags: ['Visa'],
     }),
@@ -26,5 +51,8 @@ export const visaApi = baseApi.injectEndpoints({
 export const {
   useGetVisaStatusQuery,
   useGetVisaHistoryQuery,
+  useGetVisaDocumentsQuery,
   useUploadVisaDocsMutation,
+  useDeleteVisaDocMutation,
+  useUpdateVisaStatusMutation,
 } = visaApi;

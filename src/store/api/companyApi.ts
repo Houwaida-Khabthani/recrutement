@@ -2,37 +2,38 @@ import { baseApi } from './baseApi';
 
 export const companyApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCompanies: builder.query({
-      query: () => '/companies',
-      providesTags: ['Companies'],
+    getDashboard: builder.query<any, void>({
+      query: () => '/company/dashboard',
     }),
-    getCompanyProfile: builder.query({
-      query: () => '/companies/profile',
+    getProfile: builder.query<any, void>({
+      query: () => '/company/profile',
       providesTags: ['Profile'],
     }),
-    getCompanyById: builder.query({
-      query: (id: string) => `/companies/${id}`,
-      providesTags: ['Companies'],
+    getRecruiterProfile: builder.query<any, void>({
+      query: () => '/recruiters/profile',
+      providesTags: ['Profile'],
     }),
-    getCompanyStats: builder.query({
-      query: () => '/companies/stats',
-      providesTags: ['Stats'],
-    }),
-    updateCompanyProfile: builder.mutation({
-      query: (data) => ({
-        url: '/companies/profile',
+    updateProfile: builder.mutation<any, any>({
+      query: (body) => ({
+        url: '/company/profile',
         method: 'PUT',
-        body: data,
+        body,
       }),
-      invalidatesTags: ['Profile', 'Companies'],
+      invalidatesTags: ['Profile'],
+    }),
+    getJobs: builder.query<any[], void>({
+      query: () => '/jobs/company',
+    }),
+    getCompanyStats: builder.query<any, void>({
+      query: () => '/company/stats',
     }),
   }),
 });
 
 export const {
-  useGetCompaniesQuery,
-  useGetCompanyProfileQuery,
-  useGetCompanyByIdQuery,
+  useGetDashboardQuery,
+  useGetProfileQuery,
+  useGetRecruiterProfileQuery,
+  useUpdateProfileMutation,
   useGetCompanyStatsQuery,
-  useUpdateCompanyProfileMutation,
 } = companyApi;

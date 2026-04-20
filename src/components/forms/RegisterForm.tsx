@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRegisterMutation } from "../../store/api/authApi";
-import { Role } from "../../types/roles";
+import type { Role } from "../../types/roles";
 
 const RegisterForm = () => {
   const [form, setForm] = useState({

@@ -9,6 +9,7 @@ function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { role: urlRole } = useParams();
+  const role = urlRole || "CANDIDAT";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,55 +48,99 @@ function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Connexion</h2>
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit" className="btn-primary" disabled={isLoading}>
-          {isLoading ? "Connexion..." : "Se connecter"}
-        </button>
-
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={() => navigate("/")}
-        >
-          Annuler
-        </button>
-
-        <div style={{ marginTop: "15px", textAlign: "center" }}>
-          <Link to={`/forgot-password/${urlRole}`}>
-            Mot de passe oublié ?
+    <div className="register-page">
+      <div className="register-card">
+        <div className="register-tabs">
+          <Link
+            to="/login/CANDIDAT"
+            className={`role-tab ${role === "CANDIDAT" ? "active" : ""}`}
+          >
+            Candidat
+          </Link>
+          <Link
+            to="/login/ENTREPRISE"
+            className={`role-tab ${role === "ENTREPRISE" ? "active" : ""}`}
+          >
+            Recruteur
           </Link>
         </div>
 
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
-          Pas de compte ?{" "}
-          <Link to={`/register/${urlRole}`}>
-            Créer un compte
-          </Link>
+        <h2>Connexion {role === "CANDIDAT" ? "candidat" : "recruteur"}</h2>
+        <p className="subheading">
+          Connectez-vous à votre compte pour accéder à votre tableau de bord et gérer vos candidatures ou offres.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn-primary" disabled={isLoading}>
+            {isLoading ? "Connexion..." : "Se connecter"}
+          </button>
+
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => navigate("/")}
+            >
+              Retour à l'accueil
+            </button>
+          </div>
+
+          <div className="small-text" style={{ marginTop: "20px" }}>
+            <Link to={`/forgot-password/${role}`}>
+              Mot de passe oublié ?
+            </Link>
+          </div>
+
+          <div className="small-text" style={{ marginTop: "12px" }}>
+            Pas de compte ? <Link to={`/register/${role}`}>Créer un compte</Link>
+          </div>
+        </form>
+      </div>
+
+      <div className="register-panel">
+        <div className="panel-content">
+          <span className="panel-badge">TunisiaJobInnovate</span>
+          <h1>Bienvenue sur votre espace {role === "CANDIDAT" ? "candidat" : "recruteur"}</h1>
+          <p>
+            Accédez rapidement aux meilleures opportunités ou aux talents les plus pertinents grâce à une expérience de connexion fluide.
+          </p>
+
+          <ul>
+            <li>
+              <span>✓</span>
+              Tableau de bord personnalisé
+            </li>
+            <li>
+              <span>✓</span>
+              Suivi facile des candidatures et offres
+            </li>
+            <li>
+              <span>✓</span>
+              Support sécurisé et rapide
+            </li>
+          </ul>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

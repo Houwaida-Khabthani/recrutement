@@ -1,35 +1,57 @@
-import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { UserRole } from "../../types/roles";
-import { useGetNotificationsQuery } from "../../store/api/notificationApi";
-import { useEffect, useState } from "react";
+﻿import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { UserRole } from '../../types/roles';
+import { useGetNotificationsQuery } from '../../store/api/notificationApi';
+import { useEffect, useState } from 'react';
+import { Bell } from 'lucide-react';
 
-function Navbar() {
+type NavbarProps = {
+  onMenuClick?: () => void;
+  showMenuButton?: boolean;
+  title?: string;
+  subtitle?: string;
+  profileName?: string;
+  profileAvatarUrl?: string;
+  onProfileClick?: () => void;
+  showSearch?: boolean;
+  showNotifications?: boolean;
+  showThemeToggle?: boolean;
+};
+
+function Navbar({
+  onMenuClick,
+  showMenuButton = false,
+  title = 'Dashboard',
+  subtitle = '',
+  profileName,
+  profileAvatarUrl,
+  onProfileClick,
+  showSearch = true,
+  showNotifications = true,
+  showThemeToggle = true,
+}: NavbarProps) {
   const navigate = useNavigate();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state: any) => state.auth);
 
   const { data: notifications } = useGetNotificationsQuery(undefined, {
-    skip: !user
+    skip: !user || !showNotifications,
   });
 
-  const unreadCount =
-    notifications?.filter((n: any) => !n.lu).length || 0;
+  const notificationsList = Array.isArray(notifications) ? notifications : [];
+  const unreadCount = notificationsList.filter((n: any) => !n.lu).length || 0;
 
-  // ✅ DARK MODE STATE
   const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("theme") === "dark"
+    typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark'
   );
 
-  // ✅ APPLY TO HTML ROOT (FIXED)
   useEffect(() => {
     const root = document.documentElement;
-
     if (darkMode) {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
 
@@ -38,86 +60,99 @@ function Navbar() {
   }
 
   function handleProfileClick() {
+    if (onProfileClick) {
+      onProfileClick();
+      return;
+    }
+
     if (!user) return;
 
     if (user.role === UserRole.CANDIDAT) {
-      navigate("/candidate/profile");
+      navigate('/candidate/profile');
     } else if (user.role === UserRole.ENTREPRISE) {
-      navigate("/company/profile");
+      navigate('/company/profile');
     } else if (user.role === UserRole.ADMIN) {
-      navigate("/admin/profile");
+      navigate('/admin/profile');
     }
   }
 
+  const displayName = profileName || user?.nom || user?.email || 'User';
+
   return (
-    <div className="toolbar">
-      <h1>Dashboard</h1>
-
-      <div className="navbar-right">
-
-        {/* search */}
-        <input
-          type="text"
-          placeholder="Search..."
-          className="search-input"
-        />
-
-        {/* notifications + theme side by side */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-
-          {/* 🔔 notifications */}
-          <div
-            className="notification"
-            onClick={() => navigate("/notifications")}
-            style={{ cursor: "pointer", position: "relative" }}
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/70 px-6 h-16 flex items-center justify-between shadow-sm">
+      <div className="flex items-center gap-4">
+        {showMenuButton && onMenuClick && (
+          <button
+            className="md:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors"
+            onClick={onMenuClick}
+            type="button"
           >
-            🔔
+            <span className="sr-only">Open sidebar</span>
+            ☰
+          </button>
+        )}
+        <div>
+          <h1 className="text-slate-900 font-black text-lg tracking-tight">{title}</h1>
+          {subtitle && (
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest hidden md:block">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </div>
 
+      <div className="flex items-center gap-3">
+        {showSearch && (
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="pl-4 pr-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        )}
+
+        {showNotifications && (
+          <button
+            type="button"
+            onClick={() => navigate('/notifications')}
+            className="relative p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors"
+          >
+            <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span
-                className="notif-count"
-                style={{
-                  position: "absolute",
-                  top: "-5px",
-                  right: "-5px",
-                  background: "red",
-                  color: "white",
-                  borderRadius: "50%",
-                  padding: "2px 6px",
-                  fontSize: "0.7rem"
-                }}
-              >
+              <span className="absolute -top-1 -right-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
                 {unreadCount}
               </span>
             )}
-          </div>
-
-          {/* 🌙 DARK MODE BUTTON (NOW BESIDE 🔔) */}
-          <button
-            onClick={toggleTheme}
-            style={{
-              cursor: "pointer",
-              border: "none",
-              background: "transparent",
-              fontSize: "18px"
-            }}
-          >
-            {darkMode ? "☀️" : "🌙"}
           </button>
+        )}
 
-        </div>
+        {showThemeToggle && (
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+        )}
 
-        {/* user */}
-        <div
-          className="user-info"
+        <button
+          type="button"
           onClick={handleProfileClick}
-          style={{ cursor: "pointer" }}
+          className="flex items-center gap-2.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-all"
         >
-          <span>{user ? user.nom || user.email : "User"}</span>
-        </div>
-
+          {profileAvatarUrl ? (
+            <img src={profileAvatarUrl} alt={displayName} className="w-7 h-7 rounded-lg object-cover" />
+          ) : (
+            <div className="w-7 h-7 rounded-lg bg-slate-200 flex items-center justify-center text-slate-700 font-semibold text-xs">
+              {displayName.split(' ').map((word: string) => word[0]).join('').slice(0, 2).toUpperCase()}
+            </div>
+          )}
+          <span className="text-sm font-bold text-slate-700 hidden sm:block">{displayName}</span>
+        </button>
       </div>
-    </div>
+    </header>
   );
 }
 

@@ -15,14 +15,35 @@ export const applicationApi = baseApi.injectEndpoints({
       providesTags: ['Applications'],
     }),
     getCompanyApplications: builder.query({
-      query: () => '/applications/company-applications',
+      query: (params) => ({
+        url: '/applications/company-applications',
+        params: params || {},
+      }),
       providesTags: ['Applications'],
     }),
     updateApplicationStatus: builder.mutation({
-      query: ({ id, status }) => ({
-        url: `/applications/${id}/status`,
+      query: (data) => ({
+        url: `/applications/${data.id}/status`,
         method: 'PATCH',
-        body: { status },
+        body: { 
+          ...data,
+          statut: data.status // Translate to backend field name
+        },
+      }),
+      invalidatesTags: ['Applications'],
+    }),
+    respondToOffer: builder.mutation({
+      query: ({ id, decision }) => ({
+        url: `/applications/${id}/offer-response`,
+        method: 'PATCH',
+        body: { decision },
+      }),
+      invalidatesTags: ['Applications'],
+    }),
+    deleteApplication: builder.mutation({
+      query: (id) => ({
+        url: `/applications/${id}`,
+        method: 'DELETE',
       }),
       invalidatesTags: ['Applications'],
     }),
@@ -34,4 +55,6 @@ export const {
   useGetMyApplicationsQuery,
   useGetCompanyApplicationsQuery,
   useUpdateApplicationStatusMutation,
+  useRespondToOfferMutation,
+  useDeleteApplicationMutation,
 } = applicationApi;

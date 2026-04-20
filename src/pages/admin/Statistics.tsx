@@ -1,5 +1,4 @@
-import Sidebar from "../../components/common/Sidebar";
-import Navbar from "../../components/common/Navbar";
+
 import { useGetStatsQuery } from "../../store/api/adminApi";
 
 function AdminStatistics() {
@@ -7,9 +6,9 @@ function AdminStatistics() {
 
   return (
     <div className="layout">
-      <Sidebar />
+      
       <div className="main">
-        <Navbar />
+       
         <div className="content">
           <div className="page-header">
             <h2>Statistiques de la Plateforme</h2>

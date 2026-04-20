@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { useUpdateMeMutation, useDeleteMeMutation } from "../../store/api/authApi";
-import { logout } from "../../store/slices/authSlice";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useUpdateCandidateProfileMutation } from "../../store/api/candidateApi";
+import { useUpdateProfileMutation } from "../../store/api/companyApi";
+import { useAppSelector } from "../../hooks/useAppDispatch";
 
 export default function ProfileForm({ profile, setProfile }: any) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const user = useAppSelector((state) => state.auth.user);
   const [formData, setFormData] = useState(profile);
-  
-  const [updateMe, { isLoading: isUpdating }] = useUpdateMeMutation();
-  const [deleteMe, { isLoading: isDeleting }] = useDeleteMeMutation();
+
+  const [updateCandidateProfile, { isLoading: isUpdatingCandidate }] = useUpdateCandidateProfileMutation();
+  const [updateCompanyProfile, { isLoading: isUpdatingCompany }] = useUpdateProfileMutation();
+
+  const isUpdating = isUpdatingCandidate || isUpdatingCompany;
 
   useEffect(() => {
     setFormData(profile);
@@ -24,26 +24,16 @@ export default function ProfileForm({ profile, setProfile }: any) {
     e.preventDefault();
 
     try {
-      await updateMe(formData).unwrap();
+      if (user?.role === 'CANDIDATE') {
+        await updateCandidateProfile(formData).unwrap();
+      } else if (user?.role === 'COMPANY' || user?.role === 'RECRUITER') {
+        await updateCompanyProfile(formData).unwrap();
+      }
       setProfile(formData);
       alert("Profil mis à jour ✔️");
     } catch (error) {
       console.error("Update profile error:", error);
       alert("Erreur lors de la mise à jour du profil");
-    }
-  };
-
-  const handleDelete = async () => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer votre compte ?")) {
-      try {
-        await deleteMe(null).unwrap();
-        alert("Compte supprimé ❗");
-        dispatch(logout());
-        navigate("/login/candidate"); // Or default login
-      } catch (error) {
-        console.error("Delete account error:", error);
-        alert("Erreur lors de la suppression du compte");
-      }
     }
   };
 
@@ -69,15 +59,6 @@ export default function ProfileForm({ profile, setProfile }: any) {
 
       <button type="submit" disabled={isUpdating}>
         {isUpdating ? "Enregistrement..." : "Enregistrer"}
-      </button>
-
-      <button
-        type="button"
-        onClick={handleDelete}
-        style={{ marginLeft: 10, color: "red" }}
-        disabled={isDeleting}
-      >
-        {isDeleting ? "Suppression..." : "Supprimer Compte"}
       </button>
     </form>
   );

@@ -1,30 +1,28 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { RootState } from '../index';
 
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseUrl: 'http://localhost:5000/api',
     prepareHeaders: (headers, { getState }) => {
-      const state = getState() as RootState;
-      const token = state?.auth?.token || localStorage.getItem('token');
+      // Try to get token from Redux first
+      let token = (getState() as any).auth?.token;
+
+      // Fallback to localStorage if Redux doesn't have it
+      if (!token) {
+        token = localStorage.getItem('token');
+      }
 
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set('Authorization', `Bearer ${token}`);
+        console.log('[API] Sending Authorization header ✅');
+      } else {
+        console.log('[API] ⚠️ No token found - Request will be unauthorized');
       }
 
       return headers;
     },
   }),
-  tagTypes: [
-    'Profile',
-    'Jobs',
-    'Applications',
-    'Notifications',
-    'Users',
-    'Stats',
-    'Companies',
-    'Visa',
-  ],
+  tagTypes: ['Profile', 'Applications', 'Jobs', 'Visa', 'Stats'],
   endpoints: () => ({}),
 });

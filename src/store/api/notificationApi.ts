@@ -4,6 +4,7 @@ export const notificationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getNotifications: builder.query({
       query: () => "/notifications",
+      transformResponse: (response: any) => response?.data ?? [],
       providesTags: ["Notifications"],
     }),
 
